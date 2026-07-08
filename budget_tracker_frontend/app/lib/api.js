@@ -1,7 +1,8 @@
+import { getUser } from "./auth";
+
 const BASE_URL = "http://127.0.0.1:8000";
 
 // Auth
-// for registering a user
 export async function registerUser(data) {
   const res = await fetch(`${BASE_URL}/register`, {
     method: "POST",
@@ -11,7 +12,6 @@ export async function registerUser(data) {
   return res.json();
 }
 
-// for a user to login
 export async function loginUser(data) {
   const res = await fetch(`${BASE_URL}/login`, {
     method: "POST",
@@ -23,7 +23,8 @@ export async function loginUser(data) {
 
 // Transactions
 export async function getTransactions() {
-  const res = await fetch(`${BASE_URL}/transactions`);
+  const { user_id } = getUser();
+  const res = await fetch(`${BASE_URL}/transactions?user_id=${user_id}`);
   return res.json();
 }
 
@@ -45,7 +46,8 @@ export async function deleteTransaction(id) {
 
 // Categories
 export async function getCategories() {
-  const res = await fetch(`${BASE_URL}/categories`);
+  const { user_id } = getUser();
+  const res = await fetch(`${BASE_URL}/categories?user_id=${user_id}`);
   return res.json();
 }
 
@@ -58,9 +60,17 @@ export async function createCategory(data) {
   return res.json();
 }
 
+export async function deleteCategory(id) {
+  const res = await fetch(`${BASE_URL}/categories/${id}`, {
+    method: "DELETE",
+  });
+  return res.json();
+}
+
 // Budgets
 export async function getBudgets() {
-  const res = await fetch(`${BASE_URL}/budgets`);
+  const { user_id } = getUser();
+  const res = await fetch(`${BASE_URL}/budgets?user_id=${user_id}`);
   return res.json();
 }
 
@@ -73,28 +83,40 @@ export async function createBudget(data) {
   return res.json();
 }
 
+export async function deleteBudget(id) {
+  const res = await fetch(`${BASE_URL}/budgets/${id}`, {
+    method: "DELETE",
+  });
+  return res.json();
+}
+
 // Dashboard
 export async function getDashboard() {
-  const res = await fetch(`${BASE_URL}/dashboard`);
+  const { user_id } = getUser();
+  const res = await fetch(`${BASE_URL}/dashboard?user_id=${user_id}`);
   return res.json();
 }
 
 export async function getCategorySummary() {
-  const res = await fetch(`${BASE_URL}/dashboard/category-summary`);
+  const { user_id } = getUser();
+  const res = await fetch(`${BASE_URL}/dashboard/category-summary?user_id=${user_id}`);
   return res.json();
 }
 
 export async function getMonthlySpending() {
-  const res = await fetch(`${BASE_URL}/dashboard/monthly-spending`);
+  const { user_id } = getUser();
+  const res = await fetch(`${BASE_URL}/dashboard/monthly-spending?user_id=${user_id}`);
   return res.json();
 }
 
 export async function getBudgetVsSpending() {
-  const res = await fetch(`${BASE_URL}/dashboard/budget-vs-spending`);
+  const { user_id } = getUser();
+  const res = await fetch(`${BASE_URL}/dashboard/budget-vs-spending?user_id=${user_id}`);
   return res.json();
 }
 
 export async function getAlerts() {
-  const res = await fetch(`${BASE_URL}/dashboard/alerts`);
+  const { user_id } = getUser();
+  const res = await fetch(`${BASE_URL}/dashboard/alerts?user_id=${user_id}`);
   return res.json();
 }

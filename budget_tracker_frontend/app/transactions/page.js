@@ -3,12 +3,13 @@
 import { useState, useEffect } from "react";
 import { getTransactions, createTransaction, deleteTransaction, getCategories } from "../lib/api";
 import styles from "./transactions.module.css";
+import { getUser } from "../lib/auth";
 
 export default function TransactionsPage() {
   const [transactions, setTransactions] = useState([]);
   const [categories, setCategories] = useState([]);
   const [formData, setFormData] = useState({
-    user_id: 1,
+    user_id: null,
     amount: "",
     category_id: "",
     type: "expense",
@@ -16,6 +17,12 @@ export default function TransactionsPage() {
     date: "",
   });
 
+  useEffect(() => {
+    const { user_id } = getUser();
+    setFormData((prev) => ({ ...prev, user_id }));
+    fetchTransactions();
+    fetchCategories();
+  }, []);
   useEffect(() => {
     fetchTransactions();
     fetchCategories();

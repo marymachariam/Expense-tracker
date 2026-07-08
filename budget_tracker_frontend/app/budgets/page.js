@@ -3,17 +3,25 @@
 import { useState, useEffect } from "react";
 import { getBudgets, createBudget, getCategories } from "../lib/api";
 import styles from "./budgets.module.css";
+import { getUser } from "../lib/auth";
 
 export default function BudgetsPage() {
   const [budgets, setBudgets] = useState([]);
   const [categories, setCategories] = useState([]);
   const [formData, setFormData] = useState({
-    user_id: 1,
+    user_id: null,
     category_id: "",
     amount: "",
     month: "",
     year: "",
   });
+
+  useEffect(() => {
+    const { user_id } = getUser();
+    setFormData((prev) => ({ ...prev, user_id }));
+    fetchBudgets();
+    fetchCategories();
+  }, []);
 
   useEffect(() => {
     fetchBudgets();
@@ -56,7 +64,6 @@ export default function BudgetsPage() {
     <div className={styles.container}>
       <h1 className={styles.title}>Budgets</h1>
 
-      {/* Add Budget Form */}
       <div className={styles.formCard}>
         <h2 className={styles.formTitle}>Add New Budget</h2>
         <div className={styles.formGrid}>

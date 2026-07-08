@@ -5,6 +5,7 @@ import { loginUser } from "../../lib/api";
 import Link from "next/link";
 import styles from "./login.module.css";
 import { useRouter } from "next/navigation";
+import { saveToken } from "../../lib/auth";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -26,9 +27,8 @@ export default function LoginPage() {
       setIsError(true);
       setMessage(response.error);
     } else {
-      setIsError(false);
-      setMessage(response.message);
-      router.push("/dashboard"); 
+      saveToken(response.token, response.user_id, response.username);
+      router.push("/dashboard");
     }
   }
 

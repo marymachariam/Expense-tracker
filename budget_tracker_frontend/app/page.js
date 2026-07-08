@@ -22,7 +22,6 @@ export default function Home() {
           </Link>
         </div>
       </div>
-
       {/* Features Section */}
       <div className={styles.features}>
         <h2 className={styles.featuresTitle}>Everything you need to manage your money</h2>

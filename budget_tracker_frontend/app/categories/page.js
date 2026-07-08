@@ -3,17 +3,21 @@
 import { useState, useEffect } from "react";
 import { getCategories, createCategory } from "../lib/api";
 import styles from "./categories.module.css";
+import { getUser } from "../lib/auth";
 
 export default function CategoriesPage() {
   const [categories, setCategories] = useState([]);
   const [formData, setFormData] = useState({
-    user_id: 1,
+    user_id: null,
     category_name: "",
   });
 
   useEffect(() => {
+    const { user_id } = getUser();
+    setFormData((prev) => ({ ...prev, user_id }));
     fetchCategories();
   }, []);
+
 
   async function fetchCategories() {
     const res = await getCategories();
@@ -35,7 +39,6 @@ export default function CategoriesPage() {
     <div className={styles.container}>
       <h1 className={styles.title}> Categories</h1>
 
-      {/* Add Category Form */}
       <div className={styles.formCard}>
         <h2 className={styles.formTitle}>Add New Category</h2>
         <div className={styles.formRow}>
@@ -53,7 +56,6 @@ export default function CategoriesPage() {
         </div>
       </div>
 
-      {/* Categories List */}
       <div className={styles.listCard}>
         <h2 className={styles.listTitle}>All Categories</h2>
         {categories.length === 0 ? (
