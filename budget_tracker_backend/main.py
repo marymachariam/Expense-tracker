@@ -6,6 +6,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from jose import JWTError, jwt
 from datetime import datetime as dt, timedelta
 
+app = FastAPI()
+ 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
