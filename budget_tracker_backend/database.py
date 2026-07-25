@@ -1,7 +1,9 @@
 import sqlite3
 
 def get_connection():
-    connect = sqlite3.connect('budget_tracker.db', check_same_thread=False)
+    import os
+    DB_PATH = os.getenv("DB_PATH", "budget_tracker.db")
+    connect = sqlite3.connect(DB_PATH, check_same_thread=False)
     connect.execute("PRAGMA foreign_keys = ON")
     return connect
 
