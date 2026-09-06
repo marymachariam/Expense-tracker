@@ -8,10 +8,6 @@ import { getProfile, updatePreferences, changePassword } from "../lib/api";
 
 const CURRENCIES = ["KES", "USD", "EUR", "GBP", "UGX", "TZS"];
 
-// Moved OUTSIDE Navbar — this was the bug. Defining these inside Navbar's
-// function body meant they were recreated on every render, so React treated
-// them as new component types each time and remounted the inputs, wiping
-// focus after every keystroke.
 function PreferencesForm({
   currency,
   setCurrency,
