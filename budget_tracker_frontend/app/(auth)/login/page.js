@@ -20,16 +20,24 @@ export default function LoginPage() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   }
 
- async function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
     const response = await loginUser(formData);
+
     if (response.error) {
       setIsError(true);
       setMessage(response.error);
-    } else {
-      saveToken(response.token, response.user_id, response.username);
-      router.push("/dashboard");
+
+      // If the account isn't verified yet, send them to verify instead
+      // of just showing an error with no way forward.
+      if (response.error.toLowerCase().includes("verify")) {
+        router.push(`/verify-otp?email=${encodeURIComponent(formData.email)}`);
+      }
+      return;
     }
+
+    saveToken(response.access_token, response.user_id, response.username);
+    router.push("/dashboard");
   }
 
   return (
@@ -72,6 +80,10 @@ export default function LoginPage() {
             {message}
           </p>
         )}
+
+        <div className={styles.link}>
+          <Link href="/forgot-password">Forgot password?</Link>
+        </div>
 
         <div className={styles.link}>
           Dont have an account? <Link href="/register">Register here</Link>

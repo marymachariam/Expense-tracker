@@ -23,14 +23,15 @@ export default function RegisterPage() {
   async function handleSubmit(e) {
     e.preventDefault();
     const response = await registerUser(formData);
+
     if (response.error) {
       setIsError(true);
       setMessage(response.error);
-    } else {
-      setIsError(false);
-      setMessage(response.message);
-      router.push("/login");
+      return;
     }
+
+    setIsError(false);
+    router.push(`/verify-otp?email=${encodeURIComponent(formData.email)}`);
   }
 
   return (

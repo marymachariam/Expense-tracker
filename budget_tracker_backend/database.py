@@ -1,71 +1,25 @@
-import sqlite3
+from sqlalchemy import create_engine
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
+from app.core.config import get_settings
 
-def get_connection():
-    import os
-    DB_PATH = os.getenv("DB_PATH", "budget_tracker.db")
-    connect = sqlite3.connect(DB_PATH, check_same_thread=False)
-    connect.execute("PRAGMA foreign_keys = ON")
-    return connect
+settings = get_settings()
 
-connect = get_connection()
+engine = create_engine(
+    settings.DATABASE_URL,
+    pool_pre_ping=True,          
+    pool_size=10,
+    max_overflow=20
+)
 
-def get_cursor():
-    return connect.cursor()
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-cursor = connect.cursor() 
+Base = declarative_base()
 
-# 2. table to store users
-cursor.execute('''
-CREATE TABLE IF NOT EXISTS users (
-               user_id INTEGER PRIMARY KEY AUTOINCREMENT,
-               username TEXT UNIQUE,
-               email TEXT UNIQUE,
-               password TEXT NOT NULL,
-               created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-               )
-''')
-connect.commit()
 
-# 3. table for transactions
-cursor.execute('''
-CREATE TABLE IF NOT EXISTS transactions (
-               transaction_id INTEGER PRIMARY KEY AUTOINCREMENT,
-               user_id INTEGER,
-               category_id INTEGER,
-               amount REAL NOT NULL,
-               type TEXT NOT NULL,
-               description TEXT NOT NULL,
-               date DATE NOT NULL,
-               created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-               FOREIGN KEY (user_id) REFERENCES users(user_id),
-               FOREIGN KEY(category_id) REFERENCES categories(category_id)
-               )
-''')
-connect.commit()
-
-#table for categories
-cursor.execute('''
-CREATE TABLE IF NOT EXISTS categories (
-               category_id INTEGER PRIMARY KEY AUTOINCREMENT,
-               user_id INTEGER,
-               category_name TEXT NOT NULL,
-               UNIQUE(user_id, category_name),
-               FOREIGN KEY (user_id) REFERENCES users(user_id)
-               )
-''')
-connect.commit()
-# table for setting buget
-cursor.execute('''
-CREATE TABLE IF NOT EXISTS budgets (
-               budget_id INTEGER PRIMARY KEY AUTOINCREMENT,
-               user_id INTEGER,
-               category_id INTEGER,
-               amount REAL NOT NULL,
-               month INTEGER,
-               year INTEGER,
-               FOREIGN KEY (user_id) REFERENCES users(user_id),
-               FOREIGN KEY(category_id) REFERENCES categories(category_id)
-               )
-''')
-connect.commit()
-
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()

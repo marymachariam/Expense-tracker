@@ -4,9 +4,23 @@
   box-sizing: border-box;
 }
 
+html,
+body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
 body {
   font-family: sans-serif;
   background: #f1f5f9;
+}
+
+img,
+svg,
+video {
+  max-width: 100%;
+  height: auto;
+  display: block;
 }
 
 /* Responsive typography */
@@ -15,6 +29,12 @@ html {
 }
 
 @media (max-width: 768px) {
+  html {
+    font-size: 15px;
+  }
+}
+
+@media (max-width: 480px) {
   html {
     font-size: 14px;
   }
@@ -68,13 +88,26 @@ html {
   table {
     display: block;
     overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
     white-space: nowrap;
   }
 }
 
-/* Responsive padding */
+/* Responsive padding (only affects plain, non-module .container classes) */
 @media (max-width: 768px) {
   .container {
     padding: 1rem !important;
   }
+}
+
+/* Prevent tap-highlight flash and oversized tap targets on iOS */
+a,
+button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Respect safe areas on notched phones */
+body {
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
 }

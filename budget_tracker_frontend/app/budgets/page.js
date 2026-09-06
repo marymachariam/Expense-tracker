@@ -3,25 +3,17 @@
 import { useState, useEffect } from "react";
 import { getBudgets, createBudget, getCategories } from "../lib/api";
 import styles from "./budgets.module.css";
-import { getUser } from "../lib/auth";
 
 export default function BudgetsPage() {
   const [budgets, setBudgets] = useState([]);
   const [categories, setCategories] = useState([]);
   const [formData, setFormData] = useState({
-    user_id: null,
     category_id: "",
     amount: "",
     month: "",
     year: "",
   });
-
-  useEffect(() => {
-    const { user_id } = getUser();
-    setFormData((prev) => ({ ...prev, user_id }));
-    fetchBudgets();
-    fetchCategories();
-  }, []);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     fetchBudgets();
@@ -30,12 +22,21 @@ export default function BudgetsPage() {
 
   async function fetchBudgets() {
     const res = await getBudgets();
-    setBudgets(res.budgets);
+    if (Array.isArray(res)) {
+      setBudgets(res);
+    } else {
+      setBudgets([]);
+      if (res?.error) setError(res.error);
+    }
   }
 
   async function fetchCategories() {
     const res = await getCategories();
-    setCategories(res.categories);
+    if (Array.isArray(res)) {
+      setCategories(res);
+    } else {
+      setCategories([]);
+    }
   }
 
   function handleChange(e) {
@@ -44,33 +45,58 @@ export default function BudgetsPage() {
 
   async function handleSubmit(e) {
     e.preventDefault();
-    await createBudget(formData);
-    setFormData({ user_id: 1, category_id: "", amount: "", month: "", year: "" });
+    const res = await createBudget(formData);
+    if (res?.error) {
+      setError(res.error);
+      return;
+    }
+    setError("");
+    setFormData({ category_id: "", amount: "", month: "", year: "" });
     fetchBudgets();
   }
 
   const getMonthName = (month) => {
-    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
-                    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const months = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ];
     return months[month - 1];
   };
 
   const getCategoryName = (id) => {
-    const cat = categories.find((c) => c[0] === id);
-    return cat ? cat[2] : "Unknown";
+    const cat = categories.find((c) => c.category_id === id);
+    return cat ? cat.category_name : "Unknown";
   };
 
   return (
     <div className={styles.container}>
       <h1 className={styles.title}>Budgets</h1>
 
+      {error && <p className={styles.error}>{error}</p>}
+
       <div className={styles.formCard}>
         <h2 className={styles.formTitle}>Add New Budget</h2>
         <div className={styles.formGrid}>
-          <select name="category_id" onChange={handleChange} className={styles.input}>
+          <select
+            name="category_id"
+            onChange={handleChange}
+            className={styles.input}
+          >
             <option value="">Select Category</option>
             {categories.map((cat) => (
-              <option key={cat[0]} value={cat[0]}>{cat[2]}</option>
+              <option key={cat.category_id} value={cat.category_id}>
+                {cat.category_name}
+              </option>
             ))}
           </select>
 
@@ -124,11 +150,22 @@ export default function BudgetsPage() {
             </thead>
             <tbody>
               {budgets.map((b) => (
-                <tr key={b[0]}>
-                  <td className={styles.td}>{getCategoryName(b[2])}</td>
-                  <td className={`${styles.td} ${styles.amount}`}>Ksh {b[3]}</td>
-                  <td className={styles.td}>{getMonthName(b[4])}</td>
-                  <td className={styles.td}>{b[5]}</td>
+                <tr key={b.budget_id}>
+                  <td className={styles.td} data-label="Category">
+                    {getCategoryName(b.category_id)}
+                  </td>
+                  <td
+                    className={`${styles.td} ${styles.amount}`}
+                    data-label="Amount"
+                  >
+                    Ksh {b.amount}
+                  </td>
+                  <td className={styles.td} data-label="Month">
+                    {getMonthName(b.month)}
+                  </td>
+                  <td className={styles.td} data-label="Year">
+                    {b.year}
+                  </td>
                 </tr>
               ))}
             </tbody>

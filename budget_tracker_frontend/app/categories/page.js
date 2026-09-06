@@ -8,20 +8,22 @@ import { getUser } from "../lib/auth";
 export default function CategoriesPage() {
   const [categories, setCategories] = useState([]);
   const [formData, setFormData] = useState({
-    user_id: null,
     category_name: "",
   });
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    const { user_id } = getUser();
-    setFormData((prev) => ({ ...prev, user_id }));
     fetchCategories();
   }, []);
 
-
   async function fetchCategories() {
     const res = await getCategories();
-    setCategories(res.categories);
+    if (Array.isArray(res)) {
+      setCategories(res);
+    } else {
+      setCategories([]);
+      if (res?.error) setError(res.error);
+    }
   }
 
   function handleChange(e) {
@@ -30,14 +32,21 @@ export default function CategoriesPage() {
 
   async function handleSubmit(e) {
     e.preventDefault();
-    await createCategory(formData);
-    setFormData({ user_id: 1, category_name: "" });
+    const res = await createCategory(formData);
+    if (res?.error) {
+      setError(res.error);
+      return;
+    }
+    setError("");
+    setFormData({ category_name: "" });
     fetchCategories();
   }
 
   return (
     <div className={styles.container}>
       <h1 className={styles.title}> Categories</h1>
+
+      {error && <p className={styles.error}>{error}</p>}
 
       <div className={styles.formCard}>
         <h2 className={styles.formTitle}>Add New Category</h2>
@@ -63,8 +72,8 @@ export default function CategoriesPage() {
         ) : (
           <div className={styles.grid}>
             {categories.map((cat) => (
-              <div key={cat[0]} className={styles.categoryItem}>
-                 {cat[2]}
+              <div key={cat.category_id} className={styles.categoryItem}>
+                {cat.category_name}
               </div>
             ))}
           </div>

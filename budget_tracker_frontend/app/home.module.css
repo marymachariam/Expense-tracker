@@ -49,6 +49,7 @@
   font-size: 1rem;
   font-weight: bold;
   text-decoration: none;
+  text-align: center;
 }
 
 .primaryButton:hover {
@@ -65,6 +66,7 @@
   font-size: 1rem;
   font-weight: bold;
   text-decoration: none;
+  text-align: center;
 }
 
 .secondaryButton:hover {
@@ -116,4 +118,76 @@
   font-size: 0.85rem;
   line-height: 1.5;
   margin: 0;
+}
+
+/* ===== Tablet ===== */
+@media (max-width: 1024px) {
+  .featuresGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* ===== Mobile ===== */
+@media (max-width: 640px) {
+  .hero {
+    padding: 3.5rem 1.25rem;
+  }
+
+  .logo {
+    font-size: 2.75rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .title {
+    font-size: 2rem;
+    line-height: 1.2;
+  }
+
+  .subtitle {
+    font-size: 1rem;
+    max-width: 100%;
+    margin-bottom: 2rem;
+  }
+
+  .buttons {
+    flex-direction: column;
+    width: 100%;
+    max-width: 320px;
+    gap: 0.75rem;
+  }
+
+  .primaryButton,
+  .secondaryButton {
+    width: 100%;
+    padding: 0.9rem 1.5rem;
+  }
+
+  .features {
+    padding: 2.5rem 1.25rem;
+  }
+
+  .featuresTitle {
+    font-size: 1.4rem;
+    margin-bottom: 1.75rem;
+  }
+
+  .featuresGrid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .featureCard {
+    padding: 1.25rem;
+  }
+}
+
+/* ===== Very small phones ===== */
+@media (max-width: 360px) {
+  .title {
+    font-size: 1.6rem;
+  }
+
+  .logo {
+    font-size: 2.25rem;
+  }
 }

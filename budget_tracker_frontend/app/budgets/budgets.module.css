@@ -3,6 +3,7 @@
   background: #f1f5f9;
   min-height: 100vh;
   font-family: sans-serif;
+  box-sizing: border-box;
 }
 
 .title {
@@ -35,7 +36,7 @@
   padding: 0.75rem 1rem;
   border-radius: 8px;
   border: 1px solid #e2e8f0;
-  font-size: 0.9rem;
+  font-size: 16px; /* prevents iOS auto-zoom on focus */
   width: 100%;
   box-sizing: border-box;
   outline: none;
@@ -59,6 +60,10 @@
 
 .button:hover {
   background: #4f46e5;
+}
+
+.button:active {
+  transform: scale(0.98);
 }
 
 .listCard {
@@ -104,4 +109,81 @@
   color: #94a3b8;
   text-align: center;
   padding: 2rem;
+}
+
+.error {
+  background: #fef2f2;
+  color: #ef4444;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+}
+
+/* Tablet */
+@media (max-width: 900px) {
+  .formGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Mobile: stack the form, and turn table rows into cards */
+@media (max-width: 700px) {
+  .container {
+    padding: 1.25rem;
+  }
+
+  .title {
+    font-size: 1.4rem;
+    margin-bottom: 1rem;
+  }
+
+  .formCard,
+  .listCard {
+    padding: 1rem;
+    border-radius: 10px;
+  }
+
+  .formGrid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Table -> stacked cards */
+  .table,
+  .table thead,
+  .table tbody,
+  .table th,
+  .table td,
+  .table tr {
+    display: block;
+    width: 100%;
+  }
+
+  .table thead {
+    display: none;
+  }
+
+  .table tr {
+    background: #f8fafc;
+    border-radius: 10px;
+    margin-bottom: 0.75rem;
+    padding: 0.75rem 1rem;
+    border-top: none;
+  }
+
+  .td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.4rem 0;
+    border-top: none;
+    font-size: 0.85rem;
+  }
+
+  .td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: #64748b;
+    margin-right: 1rem;
+  }
 }

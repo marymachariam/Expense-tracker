@@ -5,6 +5,8 @@
   align-items: center;
   justify-content: center;
   font-family: sans-serif;
+  padding: 1rem;
+  box-sizing: border-box;
 }
 
 .card {
@@ -53,7 +55,7 @@
   padding: 0.75rem 1rem;
   border-radius: 8px;
   border: 1px solid #e2e8f0;
-  font-size: 0.9rem;
+  font-size: 16px; /* 16px min prevents iOS Safari auto-zoom on focus */
   box-sizing: border-box;
   outline: none;
 }
@@ -77,6 +79,25 @@
 
 .button:hover {
   background: #4f46e5;
+}
+
+.button:active {
+  transform: scale(0.98);
+}
+
+.linkButton {
+  background: none;
+  border: none;
+  color: #6366f1;
+  text-decoration: none;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  font: inherit;
+}
+
+.linkButton:hover {
+  text-decoration: underline;
 }
 
 .message {
@@ -105,4 +126,58 @@
   color: #6366f1;
   text-decoration: none;
   font-weight: 600;
+}
+
+.link a:hover {
+  text-decoration: underline;
+}
+
+/* Tablet and below */
+@media (max-width: 768px) {
+  .card {
+    padding: 2rem;
+  }
+}
+
+/* Mobile phones */
+@media (max-width: 480px) {
+  .container {
+    padding: 0.75rem;
+    align-items: flex-start;
+    padding-top: 3rem;
+  }
+
+  .card {
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  }
+
+  .title {
+    font-size: 1.3rem;
+  }
+
+  .subtitle {
+    font-size: 0.85rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .input {
+    padding: 0.7rem 0.9rem;
+  }
+
+  .button {
+    padding: 0.8rem;
+  }
+}
+
+/* Very small phones */
+@media (max-width: 360px) {
+  .card {
+    padding: 1.25rem;
+  }
+
+  .title {
+    font-size: 1.15rem;
+  }
 }

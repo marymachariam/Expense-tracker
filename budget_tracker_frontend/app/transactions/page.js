@@ -1,28 +1,26 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { getTransactions, createTransaction, deleteTransaction, getCategories } from "../lib/api";
+import {
+  getTransactions,
+  createTransaction,
+  deleteTransaction,
+  getCategories,
+} from "../lib/api";
 import styles from "./transactions.module.css";
-import { getUser } from "../lib/auth";
 
 export default function TransactionsPage() {
   const [transactions, setTransactions] = useState([]);
   const [categories, setCategories] = useState([]);
   const [formData, setFormData] = useState({
-    user_id: null,
     amount: "",
     category_id: "",
     type: "expense",
     description: "",
     date: "",
   });
+  const [error, setError] = useState("");
 
-  useEffect(() => {
-    const { user_id } = getUser();
-    setFormData((prev) => ({ ...prev, user_id }));
-    fetchTransactions();
-    fetchCategories();
-  }, []);
   useEffect(() => {
     fetchTransactions();
     fetchCategories();
@@ -30,12 +28,21 @@ export default function TransactionsPage() {
 
   async function fetchTransactions() {
     const res = await getTransactions();
-    setTransactions(res.transactions);
+    if (Array.isArray(res)) {
+      setTransactions(res);
+    } else {
+      setTransactions([]);
+      if (res?.error) setError(res.error);
+    }
   }
 
   async function fetchCategories() {
     const res = await getCategories();
-    setCategories(res.categories);
+    if (Array.isArray(res)) {
+      setCategories(res);
+    } else {
+      setCategories([]);
+    }
   }
 
   function handleChange(e) {
@@ -44,7 +51,12 @@ export default function TransactionsPage() {
 
   async function handleSubmit(e) {
     e.preventDefault();
-    await createTransaction(formData);
+    const res = await createTransaction(formData);
+    if (res?.error) {
+      setError(res.error);
+      return;
+    }
+    setError("");
     fetchTransactions();
   }
 
@@ -57,6 +69,8 @@ export default function TransactionsPage() {
     <div className={styles.container}>
       <h1 className={styles.title}> Transactions</h1>
 
+      {error && <p className={styles.error}>{error}</p>}
+
       <div className={styles.formCard}>
         <h2 className={styles.formTitle}>Add New Transaction</h2>
         <div className={styles.formGrid}>
@@ -68,10 +82,16 @@ export default function TransactionsPage() {
             onChange={handleChange}
             className={styles.input}
           />
-          <select name="category_id" onChange={handleChange} className={styles.input}>
+          <select
+            name="category_id"
+            onChange={handleChange}
+            className={styles.input}
+          >
             <option value="">Select Category</option>
             {categories.map((cat) => (
-              <option key={cat[0]} value={cat[0]}>{cat[2]}</option>
+              <option key={cat.category_id} value={cat.category_id}>
+                {cat.category_name}
+              </option>
             ))}
           </select>
           <select name="type" onChange={handleChange} className={styles.input}>
@@ -114,19 +134,31 @@ export default function TransactionsPage() {
           </thead>
           <tbody>
             {transactions.map((t) => (
-              <tr key={t[0]}>
-                <td className={styles.td}>{t[5]}</td>
-                <td className={`${styles.td} ${t[4] === "income" ? styles.income : styles.expense}`}>
-                  Ksh {t[3]}
+              <tr key={t.transaction_id}>
+                <td className={styles.td} data-label="Description">
+                  {t.description}
                 </td>
-                <td className={styles.td}>
-                  <span className={`${styles.badge} ${t[4] === "income" ? styles.incomeBadge : styles.expenseBadge}`}>
-                    {t[4]}
+                <td
+                  className={`${styles.td} ${t.type === "income" ? styles.income : styles.expense}`}
+                  data-label="Amount"
+                >
+                  Ksh {t.amount}
+                </td>
+                <td className={styles.td} data-label="Type">
+                  <span
+                    className={`${styles.badge} ${t.type === "income" ? styles.incomeBadge : styles.expenseBadge}`}
+                  >
+                    {t.type}
                   </span>
                 </td>
-                <td className={styles.td}>{t[6]}</td>
-                <td className={styles.td}>
-                  <button className={styles.deleteButton} onClick={() => handleDelete(t[0])}>
+                <td className={styles.td} data-label="Date">
+                  {t.date}
+                </td>
+                <td className={styles.td} data-label="Action">
+                  <button
+                    className={styles.deleteButton}
+                    onClick={() => handleDelete(t.transaction_id)}
+                  >
                     Delete
                   </button>
                 </td>
