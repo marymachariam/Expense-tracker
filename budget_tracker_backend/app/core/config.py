@@ -9,26 +9,28 @@ class Settings(BaseSettings):
     DATABASE_URL: str = "sqlite:///./budget_tracker.db"
     FRONTEND_URL: str = "http://localhost:3000"
 
+    # Security
     SECRET_KEY: str
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7
+
+    # OTP & Reset
     OTP_EXPIRE_MINUTES: int = 10
     OTP_LENGTH: int = 6
     RESET_TOKEN_EXPIRE_MINUTES: int = 15
 
+    # Password
     MIN_PASSWORD_LENGTH: int = 8
 
-
+    # CORS
     ALLOWED_ORIGINS: list[str] = [
         "http://localhost:3000",
         "https://expense-tracker-ten-zeta-78.vercel.app",
     ]
 
-    MAIL_SERVER: str = "smtp.gmail.com"
-    MAIL_PORT: int = 587
-    MAIL_USERNAME: str
-    MAIL_PASSWORD: str
+    # Brevo (Email)
+    BREVO_API_KEY: str
     MAIL_FROM: str
 
     class Config:
