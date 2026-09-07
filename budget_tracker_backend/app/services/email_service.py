@@ -1,6 +1,4 @@
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
+import requests
 from app.core.config import get_settings
 
 settings = get_settings()
@@ -8,38 +6,49 @@ settings = get_settings()
 
 def send_otp_email(to_email: str, otp_code: str) -> bool:
     """
-    Sends OTP to the user's email using Brevo SMTP.
-    Returns True if sent successfully, False otherwise.
+    Sends OTP using Brevo HTTP API (works on Render).
     """
     try:
-        msg = MIMEMultipart()
-        msg["From"] = settings.MAIL_FROM
-        msg["To"] = to_email
-        msg["Subject"] = "Your Verification Code - Budget Tracker"
+        url = "https://api.brevo.com/v3/smtp/email"
 
-        body = f"""
-Hello,
+        headers = {
+            "accept": "application/json",
+            "api-key": settings.BREVO_API_KEY,
+            "content-type": "application/json"
+        }
 
-Your verification code is:
+        payload = {
+            "sender": {
+                "name": "Smart Budget Tracker",
+                "email": settings.MAIL_FROM
+            },
+            "to": [
+                {"email": to_email}
+            ],
+            "subject": "Your Verification Code - Budget Tracker",
+            "htmlContent": f"""
+                <html>
+                    <body>
+                        <p>Hello,</p>
+                        <p>Your verification code is:</p>
+                        <h2 style="letter-spacing: 4px;">{otp_code}</h2>
+                        <p>This code will expire in {settings.OTP_EXPIRE_MINUTES} minutes.</p>
+                        <p>If you did not request this code, please ignore this email.</p>
+                        <br>
+                        <p>— Smart Budget Tracker</p>
+                    </body>
+                </html>
+            """
+        }
 
-    {otp_code}
+        response = requests.post(url, json=payload, headers=headers, timeout=15)
 
-This code will expire in {settings.OTP_EXPIRE_MINUTES} minutes.
-
-If you did not request this code, please ignore this email.
-
-— Smart Budget Tracker
-        """
-
-        msg.attach(MIMEText(body, "plain"))
-
-        with smtplib.SMTP(settings.MAIL_SERVER, settings.MAIL_PORT) as server:
-            server.starttls()
-            server.login(settings.MAIL_USERNAME, settings.MAIL_PASSWORD)
-            server.send_message(msg)
-
-        print(f"[EMAIL] OTP sent successfully to {to_email}")
-        return True
+        if response.status_code in [200, 201]:
+            print(f"[EMAIL] OTP sent successfully to {to_email}")
+            return True
+        else:
+            print(f"[EMAIL ERROR] Brevo API error: {response.status_code} - {response.text}")
+            return False
 
     except Exception as e:
         print(f"[EMAIL ERROR] Failed to send OTP to {to_email}: {e}")
@@ -47,43 +56,46 @@ If you did not request this code, please ignore this email.
 
 
 def send_reset_password_email(to_email: str, reset_token: str) -> bool:
-    """
-    Sends a password reset link to the user's email.
-    Returns True if sent successfully, False otherwise.
-    """
     try:
         reset_link = f"{settings.FRONTEND_URL}/reset-password?token={reset_token}"
+        url = "https://api.brevo.com/v3/smtp/email"
 
-        msg = MIMEMultipart()
-        msg["From"] = settings.MAIL_FROM
-        msg["To"] = to_email
-        msg["Subject"] = "Reset Your Password - Budget Tracker"
+        headers = {
+            "accept": "application/json",
+            "api-key": settings.BREVO_API_KEY,
+            "content-type": "application/json"
+        }
 
-        body = f"""
-Hello,
+        payload = {
+            "sender": {
+                "name": "Smart Budget Tracker",
+                "email": settings.MAIL_FROM
+            },
+            "to": [{"email": to_email}],
+            "subject": "Reset Your Password - Budget Tracker",
+            "htmlContent": f"""
+                <html>
+                    <body>
+                        <p>Hello,</p>
+                        <p>We received a request to reset your password.</p>
+                        <p>Click the link below to set a new password:</p>
+                        <p><a href="{reset_link}">{reset_link}</a></p>
+                        <p>If you did not request this, please ignore this email.</p>
+                        <br>
+                        <p>— Smart Budget Tracker</p>
+                    </body>
+                </html>
+            """
+        }
 
-We received a request to reset your password.
+        response = requests.post(url, json=payload, headers=headers, timeout=15)
 
-Click the link below to set a new password:
-
-    {reset_link}
-
-This link will expire in {settings.RESET_TOKEN_EXPIRE_MINUTES} minutes.
-
-If you did not request this, please ignore this email — your password will remain unchanged.
-
-— Smart Budget Tracker
-        """
-
-        msg.attach(MIMEText(body, "plain"))
-
-        with smtplib.SMTP(settings.MAIL_SERVER, settings.MAIL_PORT) as server:
-            server.starttls()
-            server.login(settings.MAIL_USERNAME, settings.MAIL_PASSWORD)
-            server.send_message(msg)
-
-        print(f"[EMAIL] Reset link sent successfully to {to_email}")
-        return True
+        if response.status_code in [200, 201]:
+            print(f"[EMAIL] Reset link sent successfully to {to_email}")
+            return True
+        else:
+            print(f"[EMAIL ERROR] Brevo API error: {response.status_code} - {response.text}")
+            return False
 
     except Exception as e:
         print(f"[EMAIL ERROR] Failed to send reset link to {to_email}: {e}")
