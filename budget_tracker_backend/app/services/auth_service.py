@@ -10,20 +10,11 @@ from app.core.security import (
     create_refresh_token,
     generate_otp,
     get_otp_expiry,
-)
-from app.schemas.user import UserCreate, UserLogin
-
-from app.services.email_service import send_otp_email, send_reset_password_email
-from app.core.security import (
-    hash_password,
-    verify_password,
-    create_access_token,
-    create_refresh_token,
-    generate_otp,
-    get_otp_expiry,
     generate_reset_token,
     get_reset_token_expiry,
 )
+from app.schemas.user import UserCreate, UserLogin
+from app.services.email_service import send_otp_email, send_reset_password_email
 
 
 class AuthService:
@@ -50,8 +41,6 @@ class AuthService:
 
         sent = send_otp_email(user.email, otp)
         if not sent:
-            # Dev fallback so you can still test if email sending fails.
-            # Remove this print once email delivery is confirmed working.
             print(f"[OTP FALLBACK] {user.email} → {otp}")
 
         return user
@@ -132,6 +121,7 @@ class AuthService:
     def forgot_password(db: Session, email: str):
         user = UserRepository.get_by_email(db, email)
 
+        # Always return the same message (security best practice)
         generic_response = {
             "message": "If an account with that email exists, a reset link has been sent."
         }
