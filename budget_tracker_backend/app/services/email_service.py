@@ -8,12 +8,12 @@ settings = get_settings()
 
 def send_otp_email(to_email: str, otp_code: str) -> bool:
     """
-    Sends OTP to the user's email using Gmail SMTP.
+    Sends OTP to the user's email using Brevo SMTP.
     Returns True if sent successfully, False otherwise.
     """
     try:
         msg = MIMEMultipart()
-        msg["From"] = settings.MAIL_USERNAME
+        msg["From"] = settings.MAIL_FROM
         msg["To"] = to_email
         msg["Subject"] = "Your Verification Code - Budget Tracker"
 
@@ -38,11 +38,13 @@ If you did not request this code, please ignore this email.
             server.login(settings.MAIL_USERNAME, settings.MAIL_PASSWORD)
             server.send_message(msg)
 
+        print(f"[EMAIL] OTP sent successfully to {to_email}")
         return True
 
     except Exception as e:
         print(f"[EMAIL ERROR] Failed to send OTP to {to_email}: {e}")
         return False
+
 
 def send_reset_password_email(to_email: str, reset_token: str) -> bool:
     """
@@ -53,7 +55,7 @@ def send_reset_password_email(to_email: str, reset_token: str) -> bool:
         reset_link = f"{settings.FRONTEND_URL}/reset-password?token={reset_token}"
 
         msg = MIMEMultipart()
-        msg["From"] = settings.MAIL_USERNAME
+        msg["From"] = settings.MAIL_FROM
         msg["To"] = to_email
         msg["Subject"] = "Reset Your Password - Budget Tracker"
 
@@ -80,6 +82,7 @@ If you did not request this, please ignore this email — your password will rem
             server.login(settings.MAIL_USERNAME, settings.MAIL_PASSWORD)
             server.send_message(msg)
 
+        print(f"[EMAIL] Reset link sent successfully to {to_email}")
         return True
 
     except Exception as e:
